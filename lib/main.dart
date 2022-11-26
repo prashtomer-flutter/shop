@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
 
 import './providers/auth.dart';
@@ -20,28 +21,45 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => Auth()),
-        ChangeNotifierProvider(create: (ctx) => Products()), // create is used instead of value because new instance of Products is getting created. refer value usage in products_grid.dart
-        ChangeNotifierProvider(create: (ctx) => Cart()), // same as above
-        ChangeNotifierProvider(create: (ctx) => Orders()) // same as above
-      ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(
-            primarySwatch: Colors.purple,
-          ).copyWith(
-            secondary: Colors.deepOrange,
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: null,
+          update: (ctx, auth, previousProducts) => Products(
+            auth.token,
+            previousProducts == null ? [] : previousProducts.items,
           ),
-          fontFamily: 'Lato',
         ),
-        home: AuthScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrdersScreen.routeName: (ctx) => OrdersScreen(),
-          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-          EditProductScreen.routeName: (ctx) => EditProductScreen(),
-        },
+        // create is used instead of value because new instance of Products is getting created. refer value usage in products_grid.dart
+        ChangeNotifierProvider(create: (ctx) => Cart()),
+        // same as above
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: null,
+          update: (ctx, auth, previousOrders) => Orders(
+            auth.token,
+            previousOrders == null ? [] : previousOrders.orders,
+          ),
+        ),
+        // same as above
+      ],
+      child: Consumer<Auth>(
+        builder: (ctx, auth, _) => MaterialApp(
+          title: 'MyShop',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.purple,
+            ).copyWith(
+              secondary: Colors.deepOrange,
+            ),
+            fontFamily: 'Lato',
+          ),
+          home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            OrdersScreen.routeName: (ctx) => OrdersScreen(),
+            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => EditProductScreen(),
+          },
+        ),
       ),
     );
   }
