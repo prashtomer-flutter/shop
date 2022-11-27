@@ -132,7 +132,7 @@ class _AuthCardState extends State<AuthCard>
       parent: _controller,
       curve: Curves.fastOutSlowIn,
     ));
-    // _heightAnimation.addListener(() => setState(() {}));
+    // _heightAnimation.addListener(() => setState(() {})); // This was of animating will rebuild the entire widget with ever frame change in animation hence use Animation Builder shown below
     super.initState();
   }
 
@@ -230,17 +230,14 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: AnimatedBuilder( // builders in flutter helps build widgets when something changes and thus prevents unnecessary building of widgets on state changes.
-        animation: _heightAnimation,
-        builder: (ctx, ch) => Container( // here child that is passed through child in animation builder won't rebuild everytime with every frame change in animation
-          // height: _authMode == AuthMode.Signup ? 320 : 260,
-          height: _heightAnimation.value.height,
-          constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
+      child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeIn,
+          height: _authMode == AuthMode.Signup ? 320 : 260,
+          constraints: BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
           width: deviceSize.width * 0.75,
           padding: EdgeInsets.all(16.0),
-          child: ch,
-        ),
-        child: Form(
+          child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
