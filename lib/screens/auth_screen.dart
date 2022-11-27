@@ -132,7 +132,7 @@ class _AuthCardState extends State<AuthCard>
       parent: _controller,
       curve: Curves.fastOutSlowIn,
     ));
-    _heightAnimation.addListener(() => setState(() {}));
+    // _heightAnimation.addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -230,12 +230,16 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
-        // height: _authMode == AuthMode.Signup ? 320 : 260,
-        height: _heightAnimation.value.height,
-        constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
-        width: deviceSize.width * 0.75,
-        padding: EdgeInsets.all(16.0),
+      child: AnimatedBuilder( // builders in flutter helps build widgets when something changes and thus prevents unnecessary building of widgets on state changes.
+        animation: _heightAnimation,
+        builder: (ctx, ch) => Container( // here child that is passed through child in animation builder won't rebuild everytime with every frame change in animation
+          // height: _authMode == AuthMode.Signup ? 320 : 260,
+          height: _heightAnimation.value.height,
+          constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
+          width: deviceSize.width * 0.75,
+          padding: EdgeInsets.all(16.0),
+          child: ch,
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -276,11 +280,11 @@ class _AuthCardState extends State<AuthCard>
                     obscureText: true,
                     validator: _authMode == AuthMode.Signup
                         ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
-                            }
-                            return null;
-                          }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match!';
+                      }
+                      return null;
+                    }
                         : null,
                   ),
                 SizedBox(
@@ -291,14 +295,14 @@ class _AuthCardState extends State<AuthCard>
                 else
                   ElevatedButton(
                     child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                    Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                      EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
                   ),
@@ -308,7 +312,7 @@ class _AuthCardState extends State<AuthCard>
                   onPressed: _switchAuthMode,
                   style: TextButton.styleFrom(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+                    EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     foregroundColor: Theme.of(context).colorScheme.primary,
                   ),
@@ -316,7 +320,7 @@ class _AuthCardState extends State<AuthCard>
               ],
             ),
           ),
-        ),
+        )
       ),
     );
   }
