@@ -13,6 +13,7 @@ import './screens/product_detail_screen.dart';
 import './screens/products_overview_screen.dart';
 import './screens/splash_screen.dart';
 import './screens/user_products_screen.dart';
+import './helpers/custom_route.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,10 +25,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => Auth()),
         ChangeNotifierProxyProvider<Auth, Products>(
           create: (_) => Products('', '', []),
-          update: (ctx, auth, previousProducts) => previousProducts..updateUser(
-            auth.token,
-            auth.userId,
-          ),
+          update: (ctx, auth, previousProducts) => previousProducts
+            ..updateUser(
+              auth.token,
+              auth.userId,
+            ),
         ),
         // create is used instead of value because new instance of Products is getting created. refer value usage in products_grid.dart
         ChangeNotifierProvider(create: (ctx) => Cart()),
@@ -46,13 +48,18 @@ class MyApp extends StatelessWidget {
         builder: (ctx, auth, _) => MaterialApp(
           title: 'MyShop',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSwatch(
-              primarySwatch: Colors.purple,
-            ).copyWith(
-              secondary: Colors.deepOrange,
-            ),
-            fontFamily: 'Lato',
-          ),
+              colorScheme: ColorScheme.fromSwatch(
+                primarySwatch: Colors.purple,
+              ).copyWith(
+                secondary: Colors.deepOrange,
+              ),
+              fontFamily: 'Lato',
+              pageTransitionsTheme: PageTransitionsTheme( // will setup route page transitions for entire app ie fade transition
+                builders: {
+                  TargetPlatform.android: CustomPageTransitionBuilder(),
+                  TargetPlatform.iOS: CustomPageTransitionBuilder(),
+                },
+              )),
           home: auth.isAuth
               ? ProductsOverviewScreen()
               : FutureBuilder(
